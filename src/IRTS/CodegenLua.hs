@@ -40,7 +40,8 @@ variable s = PrefixExp $ PEVar $ VarName s
 pfuncall f a = PrefixExp $ PEFunCall $ NormalFunCall (PEVar (VarName f)) (Args a)
 funcall f a = FunCall $ NormalFunCall (PEVar (VarName f)) (Args a)
 table t n = PrefixExp $ PEVar $ Select (PEVar (VarName t)) (number (n + 1))
-number n = Number $ T.pack $ show n
+number :: Show a => a -> L.Exp
+number = L.Number FloatNum . T.pack . show
 string s = String $ T.pack $ show s
 
 instance IsString L.Name where
@@ -222,7 +223,7 @@ cgOp (LXOr (ITFixed IT64)) [l, r] = pfuncall "big_xor" [l, r]
 cgOp (LXOr i) [l, r]
      = cap i $ pfuncall "bit.bxor" [l, r]
 cgOp (LCompl ITBig) [b] = pfuncall "big_not" [b]
-cgOp (LCompl (ITFixed IT64)) [b] = pfuncall "big_not" [b, Number "64"]
+cgOp (LCompl (ITFixed IT64)) [b] = pfuncall "big_not" [b, Number FloatNum "64"]
 cgOp (LCompl i) [b]
      = cap i $ pfuncall "bit.bnot" [b]
 cgOp (LSHL ITBig) [l, r] = pfuncall "big_lshift" [l, r]
